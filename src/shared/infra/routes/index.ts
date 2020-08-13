@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import giphiesRouter from '@modules/api/infra/http/routes/giphies.routes';
+import recipesRouter from '@modules/api/infra/http/routes/recipes.routes';
 
 const routes = Router();
 
-routes.use('/giphy', giphiesRouter);
+routes.use('/recipes', recipesRouter);
 
 export default routes;

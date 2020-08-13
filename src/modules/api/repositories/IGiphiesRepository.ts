@@ -1,5 +1,5 @@
 import Giphy from '../infra/entities/Giphy';
 
 export default interface IGiphiesRepository {
-  getGif(gif: Giphy): Promise<Giphy>;
+  getGif(query: string, env: string): Promise<Giphy>;
 }
