@@ -1,101 +1,88 @@
 import express from 'express';
 import axios from 'axios';
 
+import AppError from './AppError';
+
 interface IRecipe {
   title: string;
-  ingredients: string;
-  link: string;
-  gif?: string;
+  ingredients: string[];
+  href: string;
+  gif?: string | undefined;
 }
 
 const app = express();
 
 app.use(express.json());
 
-const RECIPEPUPPY_API = 'http://www.recipepuppy.com/about/api/';
+const RECIPEPUPPY_API = 'http://www.recipepuppy.com/api/';
 const GIPHY_API = 'http://api.giphy.com/v1/gifs/search';
 const { GIPHY_API_KEY } = process.env;
 
-app.get('/', (request, response) => {
+app.get('/', async (request, response) => {
   response.json({ message: 'Hello Delivery Much' });
 });
 
-app.get('/recipes/', (request, response) => {
-  const ingredients = request.query.i;
+app.get('/recipes/', async (request, response) => {
+  try {
+    const ingredients = parseInput(request.query.i as string);
 
-  if (!ingredients) {
-    return response.status(400).send({
-      error: 'Provide at least one ingredient, please.',
-    });
-  }
+    const recipes = await getRecipes(request.query.i as string);
 
-  const ingredientsList = ingredients.toString().split(', ');
-  if (ingredientsList.length > 3) {
-    return response.status(400).send({
-      error: 'Too many ingredients, provide a maximum of three ingredients',
-    });
-  }
+    const recipesList: IRecipe[] = [];
 
-  const recipesList = getRecipes(ingredientsList).then(recipes => {
-    console.log(recipes.data);
-    response.json({
-      keywords: ingredientsList,
-      recipes: handleRecipes(recipes.data.results),
-    });
-  });
+    for (const recipe of recipes) {
+      const title = recipe.title.trim();
 
-  return recipesList;
-});
+      const gif = await getGif(title);
 
-app.get('/giphy/', (request, response) => {
-  const query = String(request.query.q);
-  getGif(query)
-    .then(results => {
-      response.send(results.data.data[0].images.original.url);
-    })
-    .catch(error => {
-      response.send({
-        status: error.response.status,
-        message: error.message,
+      recipesList.push({
+        title,
+        ingredients: recipe.ingredients,
+        href: recipe.href,
+        gif,
       });
+    }
+
+    return response.json({
+      keywords: ingredients.sort(),
+      recipes: recipesList,
     });
+  } catch (err) {
+    return response.status(400).json({ error: err.message });
+  }
 });
 
-function getGif(query: string) {
-  return axios.get(GIPHY_API, {
+const getGif = async (query: string): Promise<string> => {
+  const request = axios.get(GIPHY_API, {
     params: {
       api_key: GIPHY_API_KEY,
       limit: 1,
       q: query,
     },
   });
-}
 
-function getRecipes(ingredients: string[]) {
-  return axios.get(RECIPEPUPPY_API, {
+  const response = await request;
+
+  return response.data.data[0].images.original.url;
+};
+
+const parseInput = (param: string) => {
+  const output = param.split(', ');
+  if (output.length === 0 || output.length > 3) {
+    throw new AppError('Provide from 1 to 3 ingredients');
+  }
+
+  return output;
+};
+
+const getRecipes = async (ingredients: string): Promise<IRecipe[]> => {
+  const request = axios.get(RECIPEPUPPY_API, {
     params: {
       i: ingredients,
     },
   });
-}
-
-function handleRecipes(recipes: IRecipe[]): IRecipe[] {
-  const processedRecipes: IRecipe[] = [];
-
-  recipes.map(recipe => {
-    const { title, ingredients, link, gif } = recipe;
-
-    processedRecipes.push({
-      title,
-      ingredients,
-      link,
-      gif,
-    });
-
-    return processedRecipes;
-  });
-
-  return processedRecipes;
-}
+  const response = await request;
+  return response.data.results;
+};
 
 export default app;
