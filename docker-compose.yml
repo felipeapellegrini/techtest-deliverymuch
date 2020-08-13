@@ -10,4 +10,4 @@ services:
       - .:/usr/src/app
     ports:
       - "3333:3333"
-    command: yarn run start
+    command: yarn dev:server

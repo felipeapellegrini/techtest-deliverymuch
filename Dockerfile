@@ -1,7 +1,7 @@
-FROM node:8.11-alpine
-WORKDIR /usr/src/app
+FROM node:12.18
+WORKDIR /usr/src/shared/infra/server
 COPY ["package.json", "package-lock.json*", "./"]
 RUN yarn install
 COPY . .
 EXPOSE 3333
-CMD yarn run start
+CMD ["yarn", "dev:server"]
