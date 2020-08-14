@@ -5,5 +5,5 @@ export default class Recipe {
 
   href: string;
 
-  gif?: string | undefined;
+  gif: string;
 }

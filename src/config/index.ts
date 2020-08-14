@@ -1,4 +1,4 @@
-import AppError from '@shared/errors/AppError';
+import AppError from '../shared/errors/AppError';
 
 export default function checkEnvironment(): void {
   if (

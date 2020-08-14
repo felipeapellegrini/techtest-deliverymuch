@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "dev:server": "ts-node-dev -r tsconfig-paths/register --inspect --transpile-only --ignore-watch node_modules src/shared/infra/server.ts",
-    "start": "ts-node src/shared/infra/server.ts"
+    "start": "ts-node src/shared/infra/server.ts",
+    "test": "jest"
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^3.9.0",
@@ -25,7 +26,9 @@
     "eslint-config-prettier": "^6.11.0",
     "eslint-import-resolver-typescript": "^2.2.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "jest": "^26.4.0",
     "prettier": "^2.0.5",
+    "ts-jest": "^26.2.0",
     "ts-node-dev": "^1.0.0-pre.56",
     "typescript": "^3.9.7"
   }

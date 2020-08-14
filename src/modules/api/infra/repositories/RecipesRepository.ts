@@ -1,33 +1,38 @@
 import axios from 'axios';
 import IRecipesRepository from '@modules/api/repositories/IRecipesRepository';
-
-interface IRecipe {
-  title: string;
-  ingredients: string[];
-  href: string;
-  gif?: string | undefined;
-}
+import GihpiesRepository from './GiphiesRepository';
+import Recipe from '../entities/Recipe';
 
 class RecipesRepository implements IRecipesRepository {
-  private recipes: IRecipe[] = [];
+  private recipes: Recipe[] = [];
 
-  public async getRecipes(query: string, env: string): Promise<IRecipe[]> {
-    const request = axios.get(env, {
+  public async getRecipes(query: string): Promise<Recipe[]> {
+    const giphiesRepository = new GihpiesRepository();
+    const request = axios.get(process.env.RECIPE_PUPPY_API as string, {
       params: {
         i: query,
       },
     });
     const response = await request;
 
-    return response.data.results;
-  }
+    const recipes = response.data.results as Recipe[];
 
-  public async save(recipe: IRecipe): Promise<void> {
-    this.recipes.push(recipe);
-  }
+    for (const recipe of recipes) {
+      const title = recipe.title.trim();
 
-  public async findAll(): Promise<IRecipe[]> {
-    return this.recipes;
+      const { ingredients, href } = recipe;
+
+      const gif = await giphiesRepository.getGif(title);
+
+      this.recipes.push({
+        title,
+        ingredients,
+        href,
+        gif: gif.url,
+      });
+    }
+
+    return recipes;
   }
 }
 
