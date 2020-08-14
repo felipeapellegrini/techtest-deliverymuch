@@ -20,7 +20,7 @@ Agora você deve ter uma chave de acesso à API do [Giphy](https://developers.gi
 
 Em seguida você poderá instalar os pacotes utilizando o ``npm`` ou ``yarn``
 
-``
+```
 # yarn
 yarn install
 yarn start
@@ -28,13 +28,14 @@ yarn start
 # npm
 npm install
 npm start
-``
+```
 Ao fazer uma requisição à ``localhost:3333`` temos:
 
-``
+```
 {
   "message": "Hello Delivery Much"
 }
+```
 
 ### Docker
 Se você preferir, pode executar o projeto em um container do docker, desde que tenha instalado em sua máquina o [Docker](https://www.docker.com/get-started) e o [Docker Compose](https://docs.docker.com/compose/install/#prerequisites)
